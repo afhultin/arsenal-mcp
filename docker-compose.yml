@@ -1,0 +1,16 @@
+services:
+  arsenal-server:
+    build: .
+    ports:
+      - "8888:8080"
+    restart: unless-stopped
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    volumes:
+      - arsenal-data:/home/arsenal/.arsenal
+    environment:
+      - ARSENAL_SESSION=docker
+
+volumes:
+  arsenal-data:

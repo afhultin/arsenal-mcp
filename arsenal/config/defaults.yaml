@@ -1,0 +1,11 @@
+tool_defaults:
+  timeout: 300
+  default_wordlist: "/usr/share/wordlists/rockyou.txt"
+  default_dirlist: "/usr/share/wordlists/dirb/common.txt"
+  default_seclist_dns: "/usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt"
+
+database:
+  path: "~/.arsenal/arsenal.db"
+
+plugin_dir: "~/.arsenal/plugins"
+session_name: "default"
