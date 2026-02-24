@@ -16,6 +16,7 @@ Arsenal turns any MCP-compatible AI client (Claude Code, Claude Desktop, or cust
 - **Report generation** — export findings as Markdown or JSON
 - **Plugin system** — extend with custom tools via `~/.arsenal/plugins/`
 - **Autonomous agent CLI** — built-in Claude-powered agent that drives the full pentest workflow
+- **Reinforcement learning** — Thompson Sampling bandit learns which tools find vulnerabilities per target type and adapts recommendations over time
 - **Docker-ready** — ships as a Kali Linux container with all tools pre-installed
 
 ---
@@ -99,6 +100,20 @@ configure_scope(
 ```
 
 Supports IP addresses, CIDR ranges, wildcards, and URLs.
+
+---
+
+## Reinforcement Learning
+
+The autonomous agent uses **Thompson Sampling** (multi-armed bandit) to learn which tools work best for different targets.
+
+- **Reward tracking** — tool runs are scored based on findings: critical = 10 pts, high = 5, medium = 2, low = 0.5, info = 0.1
+- **Context-aware learning** — stats tracked per (tool, target_type, task_type), so the agent learns that `nuclei_scan` works great on ecommerce sites but `js_analyze` is better for API targets
+- **Exploration vs exploitation** — Beta distribution sampling ensures proven tools get prioritized while unexplored tools still get tried
+- **Persistent memory** — workflows, lessons, and target notes persist in SQLite across sessions
+- **Time decay** — old stats decay so the agent adapts to changing target landscapes
+
+The agent automatically injects ranked tool recommendations into its system prompt based on bandit scores.
 
 ---
 
@@ -219,7 +234,7 @@ arsenal-mcp/
 │   ├── agent.py              # Claude API <-> MCP tool loop
 │   ├── cli.py                # Rich terminal UI
 │   ├── config.py             # Agent configuration
-│   └── memory.py             # SQLite memory (workflows, lessons, target notes)
+│   └── memory.py             # SQLite memory + Thompson Sampling bandit
 ├── Dockerfile                # Kali Linux container with all tools
 ├── docker-compose.yml        # One-command deployment
 └── pyproject.toml            # Package metadata
