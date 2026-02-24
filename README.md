@@ -22,41 +22,66 @@ Arsenal turns any MCP-compatible AI client (Claude Code, Claude Desktop, or cust
 
 ## Quick Start
 
-### Option 1: Claude Code Integration (Recommended)
+### macOS / Windows (Docker)
+
+The security tools (nmap, sqlmap, metasploit, etc.) run inside a Kali Linux Docker container. You connect to it from your host machine.
+
+**1. Start the server:**
 
 ```bash
-# Clone and install
+git clone https://github.com/afhultin/arsenal-mcp.git
+cd arsenal-mcp
+docker compose up -d
+```
+
+This builds a Kali container with all 45+ tools pre-installed and starts the MCP server on port 8888.
+
+**2. Connect Claude Code:**
+
+```bash
+claude mcp add arsenal --transport http http://localhost:8888/mcp
+```
+
+**3. Use it:**
+
+Open Claude Code and ask:
+> "Scan 10.0.0.0/24 for open ports and enumerate services"
+
+**To stop the server:**
+
+```bash
+docker compose down
+```
+
+### Kali Linux (Native)
+
+If you're already on Kali with the tools installed, you can run Arsenal directly without Docker.
+
+```bash
 git clone https://github.com/afhultin/arsenal-mcp.git
 cd arsenal-mcp
 pip install -e .
 
-# Add to Claude Code as an MCP server
-claude mcp add arsenal -- python -m arsenal
+# Add to Claude Code (runs over stdio, no Docker needed)
+claude mcp add arsenal -- python3 -m arsenal
 ```
 
-Then in Claude Code, just ask:
-> "Scan 10.0.0.0/24 for open ports and enumerate services"
+### Autonomous Agent (Any Platform)
 
-### Option 2: Docker
-
-```bash
-docker compose up -d
-
-# Or build manually
-docker build -t arsenal-mcp .
-docker run --network host --cap-add NET_RAW --cap-add NET_ADMIN arsenal-mcp
-```
-
-### Option 3: Autonomous Agent
+Arsenal includes a standalone agent CLI that drives pentests autonomously. Requires the MCP server to be running first (via Docker or native).
 
 ```bash
+pip install -e .
 export ANTHROPIC_API_KEY=your-key-here
 
 # Interactive mode — you approve each action
-arsenal-agent --server http://localhost:8080
+arsenal-agent --server http://localhost:8888
 
 # Auto mode — fully autonomous pentesting
-arsenal-agent --server http://localhost:8080 --auto
+arsenal-agent --server http://localhost:8888 --auto
+
+# Custom model and turn limit
+arsenal-agent --server http://localhost:8888 --model claude-sonnet-4-20250514 --max-turns 30
 ```
 
 ---
@@ -175,8 +200,7 @@ arsenal-mcp/
 │   ├── core/
 │   │   ├── runner.py         # Subprocess execution engine
 │   │   ├── scope.py          # DENY-by-default scope guard
-│   │   ├── jobs.py           # Background job & session manager
-│   │   └── parsers.py        # Output parser registry
+│   │   └── jobs.py           # Background job & session manager
 │   ├── db/
 │   │   ├── database.py       # aiosqlite persistence layer
 │   │   └── models.py         # Finding, ToolRun, Session models
@@ -199,28 +223,6 @@ arsenal-mcp/
 ├── docker-compose.yml        # One-command deployment
 └── pyproject.toml            # Package metadata
 ```
-
----
-
-## Autonomous Agent
-
-Arsenal includes a standalone CLI agent that connects to the MCP server and drives pentests autonomously using Claude.
-
-```bash
-# Interactive — review and approve each action
-arsenal-agent --server http://localhost:8080
-
-# Fully autonomous
-arsenal-agent --server http://localhost:8080 --auto
-
-# Custom model and turn limit
-arsenal-agent --server http://localhost:8080 --model claude-sonnet-4-20250514 --max-turns 30
-```
-
-The agent features:
-- **Persistent memory** — remembers workflows, lessons learned, and target notes across sessions
-- **Rich terminal UI** — color-coded output with tool call visualization
-- **Auto mode** — fully autonomous pentest execution following recon-to-report methodology
 
 ---
 
@@ -254,8 +256,8 @@ plugin_dir: ~/.arsenal/plugins
 
 ## Requirements
 
-- Python 3.11+
-- Kali Linux tools (installed automatically in Docker, or install individually on host)
+- **Docker** (macOS / Windows) — Docker Desktop
+- **Native** (Kali Linux) — Python 3.11+ and Kali tools installed
 - `ANTHROPIC_API_KEY` environment variable (for the agent CLI only)
 
 ---
