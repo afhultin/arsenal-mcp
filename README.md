@@ -23,7 +23,8 @@ Arsenal turns any MCP-compatible AI client (Claude Code, Claude Desktop, or cust
 
 ## Quick Start
 
-##Recommended strongly to run claude with extended permissions, can use --dangerously-skip-permissions
+> **Tip:** Arsenal works best with extended permissions so Claude can run tools without constant approval prompts. Use `claude --dangerously-skip-permissions` or configure allowlists in your Claude Code settings.
+
 ### macOS / Windows (Docker)
 
 The security tools (nmap, sqlmap, metasploit, etc.) run inside a Kali Linux Docker container. You connect to it from your host machine.
@@ -38,16 +39,20 @@ docker compose up -d
 
 This builds a Kali container with all 45+ tools pre-installed and starts the MCP server on port 8888.
 
-**2. Connect Claude Code:**
+**2. Register with Claude Code (one-time):**
 
 ```bash
 claude mcp add arsenal --transport http http://localhost:8888/mcp
 ```
 
+You only run this once. Claude Code remembers the server across sessions.
+
 **3. Use it:**
 
-Open Claude Code and ask:
+Start Docker (`docker compose up -d`), then open Claude Code and ask:
 > "Scan 10.0.0.0/24 for open ports and enumerate services"
+
+The container must be running for tools to work. The `mcp add` registration is permanent — you don't need to re-add it.
 
 **To stop the server:**
 
