@@ -22,6 +22,7 @@ Arsenal turns any MCP-compatible AI client (Claude Code, Claude Desktop, or cust
 
 ## Quick Start
 
+##Recommended strongly to run claude with extended permissions, can use --dangerously-skip-permissions
 ### macOS / Windows (Docker)
 
 The security tools (nmap, sqlmap, metasploit, etc.) run inside a Kali Linux Docker container. You connect to it from your host machine.
